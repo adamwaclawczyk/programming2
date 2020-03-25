@@ -25,6 +25,22 @@ namespace programming2
         }
         public bool properEquation()
         {
+            string eq = this.equation;
+            eq.Trim();
+            int count = 0;
+            foreach(char c in eq)
+            {
+                if (c == '(') count++;
+                else if (c == ')') count--;
+            }
+            if (count != 0)
+            {
+                Console.Write("\nNieprawidłowa ilość nawiasów");
+                return false;
+            }
+
+
+
 
             return true;
         }
@@ -171,6 +187,7 @@ namespace programming2
                 {
                     double temp = double.Parse(S.Pop().ToString());
                     S.Push(evalFun(temp, tokens[i]));
+                    if(double.Parse(S.Peek().ToString()) == -3.7942080885) { Console.WriteLine("\nKończę działanie..."); return -3.7942080885; }
                 }
                 if (getPriority(tokens[i]) >= 1 && getPriority(tokens[i]) <= 3 && tokens[i] != "-u")
                 {
@@ -234,7 +251,11 @@ namespace programming2
                 case "cosh": return Math.Cosh(a);
                 case "abs": return Math.Abs(a);
                 case "exp": return Math.Exp(a);
-                case "log": return Math.Log(a);
+                case "log":
+                    if (a > 0)
+                            return Math.Log(a);
+                    else { Console.Write("Nieprawidłowa wartość. Błąd dziedziny funkcji log"); break; }
+                    
                 case "sqrt": return Math.Sqrt(a);
                 case "tan": return Math.Tan(a);
                 case "tanh": return Math.Tanh(a);
@@ -242,7 +263,7 @@ namespace programming2
                 case "asin": return Math.Asin(a);
                 case "atan": return Math.Atan(a);
             }
-            return -3.69420;
+            return -3.7942080885;
         }
         public static double evalOp(double a, double b, string op)
         {
