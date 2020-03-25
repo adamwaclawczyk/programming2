@@ -12,7 +12,7 @@ namespace onp22
     class Program
     {
         public static Dictionary<string, int> properDict = new Dictionary<string, int> {
-                { "-u",5 },{ "sin", 4 }, { "cos", 4 }, { "abs", 4 }, { "exp", 4 }, { "log", 4 }, {"sqrt", 4 },{"tan", 4 }, {"cosh", 4 },{"sinh", 4 },{"tanh", 4 } ,{"acos", 4 },{"asin", 4 },{"atan", 4 },
+                { "-u",3 },{ "sin", 4 }, { "cos", 4 }, { "abs", 4 }, { "exp", 4 }, { "log", 4 }, {"sqrt", 4 },{"tan", 4 }, {"cosh", 4 },{"sinh", 4 },{"tanh", 4 } ,{"acos", 4 },{"asin", 4 },{"atan", 4 },
                 {"^", 3 },
                 { "*", 2 },{"/", 2 },
                 {"+", 1 },{"-", 1 },
@@ -241,12 +241,12 @@ namespace onp22
                     {
                         S.Push(tokens[i]);
                     }
-                    if (getPriority(tokens[i]) == 4)
+                    if (getPriority(tokens[i]) == 4 || tokens[i] == "-u")
                     {
                         double temp = double.Parse(S.Pop().ToString());
                         S.Push(evalFun(temp, tokens[i]));
                     }
-                    if (getPriority(tokens[i]) >= 1 && getPriority(tokens[i]) <= 3)
+                    if (getPriority(tokens[i]) >= 1 && getPriority(tokens[i]) <= 3 && tokens[i] != "-u")
                     {
                         double a = double.Parse(S.Pop().ToString());
                         double b = double.Parse(S.Pop().ToString());
@@ -282,7 +282,7 @@ namespace onp22
         {
             switch (fun)
             {
-                case "-u": return -1 * a;
+                case "-u": return (-1) * a;
                 case "sin": return Math.Sin(a);
                 case "cos": return Math.Cos(a);
                 case "sinh": return Math.Sinh(a);
