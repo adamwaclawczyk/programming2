@@ -46,7 +46,8 @@ namespace programming2
         }
         public string[] generateInfixTokens()
         {
-            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan", "^", "*", "/", "+", "-", "(", ")", "x","-u" };
+            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan","x"};
+            List<string> possibleSingleTokens = new List<string> { "^", "*", "/", "+", "-", "(", ")",};
             List<string> tokens = new List<string>();
             string tmp = "";
             string tmpNum = "";
@@ -57,8 +58,11 @@ namespace programming2
                 if (znak == '-' && (tokens.Count == 0 || isOperator(tokens[tokens.Count - 1])))
                 {
                     tokens.Add("-u");
+                    tmp = "";
+                    tmpNum = "";
                     continue;
                 }
+                
                 if (int.TryParse(znak.ToString(), out _) && isDouble == false)
                 {
                     isNumber = true;
@@ -89,20 +93,27 @@ namespace programming2
                     isNumber = false;
                     isDouble = false;
                 }
+                if (possibleSingleTokens.Contains(znak.ToString()))
+                {
+                    tmp = "";
+                    tmpNum = "";
+                    tokens.Add(znak.ToString());
+                    continue;
+                }
                 tmp += znak;
                 if (possibleTokens.Contains(tmp))
                 {
                     tokens.Add(tmp);
                     tmp = "";
-                }
+                }else if (tmp.Length == 4) { this.invalidTokens = true;}
             }
-            //if (tmpNum != "") { tokens.Add(tmpNum); }
+            if (tmpNum != "") { tokens.Add(tmpNum); tmp = ""; }
             if (tmp != "") { tokens.Add(tmp);}
             foreach(string t in tokens)
             {
                 this.infixTokens.Add(t);
             }
-            if (!checkTokensValidity(this.infixTokens)) { Console.Write("\nInvalid input string"); this.invalidTokens = true; }
+            if (!checkTokensValidity(this.infixTokens)) { Console.Write("\nInvalid input stringt    "); this.invalidTokens = true; }
 
             return tokens.ToArray();
         }
@@ -287,7 +298,8 @@ namespace programming2
             List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan", "^", "*", "/", "+", "-", "(", ")", "x", "-u" };
             foreach (string t in tokens)
             {
-                if (possibleTokens.Contains(t) || isNumber(t)) continue; else return false;
+                string t2 = t.Replace('.', ',');
+                if (possibleTokens.Contains(t2) || double.TryParse(t2, out _) || int.TryParse(t2,out _)) continue; else return false;
             }
             return true;
         }
