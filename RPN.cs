@@ -9,8 +9,10 @@ namespace programming2
     public class RPN
     {
         string equation;
-        List<string> infixTokens = new List<string>();
-        List<string> postfixTokens = new List<string>();
+        public List<string> infixTokens = new List<string>();
+        public List<string> postfixTokens = new List<string>();
+        bool domainError = false;
+        public bool invalidTokens = false;
         static Dictionary<string, int> properDict = new Dictionary<string, int> {
                 { "sin", 4 }, { "cos", 4 }, { "abs", 4 }, { "exp", 4 }, { "log", 4 }, {"sqrt", 4 },{"tan", 4 }, {"cosh", 4 },{"sinh", 4 },{"tanh", 4 } ,{"acos", 4 },{"asin", 4 },{"atan", 4 },
                 {"^", 3 },{ "-u",3 },
@@ -19,6 +21,7 @@ namespace programming2
                 { "(", 0 },{")", 0}
 
             };
+        
         public RPN(string input)
         {
             this.equation = input;
@@ -35,18 +38,14 @@ namespace programming2
             }
             if (count != 0)
             {
-                Console.Write("\nNieprawidłowa ilość nawiasów");
+                Console.Write("\nMismatched brackets");
                 return false;
             }
-
-
-
-
             return true;
         }
         public string[] generateInfixTokens()
         {
-            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan", "^", "*", "/", "+", "-", "(", ")", "x", };
+            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan", "^", "*", "/", "+", "-", "(", ")", "x","-u" };
             List<string> tokens = new List<string>();
             string tmp = "";
             string tmpNum = "";
@@ -54,7 +53,6 @@ namespace programming2
             bool isDouble = false;
             foreach (char znak in equation)
             {
-                //build token
                 if (znak == '-' && (tokens.Count == 0 || isOperator(tokens[tokens.Count - 1])))
                 {
                     tokens.Add("-u");
@@ -90,24 +88,21 @@ namespace programming2
                     isNumber = false;
                     isDouble = false;
                 }
-
                 tmp += znak;
                 if (possibleTokens.Contains(tmp))
                 {
                     tokens.Add(tmp);
                     tmp = "";
                 }
-                //check if WiP token exists in the possibleTokens list 
-                //foreach( string t in possibleTokens)
-                //{
-                //}
             }
-            
-            if (tmpNum != "") { tokens.Add(tmpNum); }
+            //if (tmpNum != "") { tokens.Add(tmpNum); }
+            if (tmp != "") { tokens.Add(tmp);}
             foreach(string t in tokens)
             {
                 this.infixTokens.Add(t);
             }
+            if (!checkTokensValidity(this.infixTokens)) { Console.Write("\nInvalid input string"); this.invalidTokens = true; }
+
             return tokens.ToArray();
         }
         public string[] generatePostfixTokens()
@@ -140,13 +135,8 @@ namespace programming2
                 tokens[i] = tokens[i].Replace('.', ',');
                 if (int.TryParse(tokens[i].ToString(), out _) || double.TryParse(tokens[i].ToString(), out _) || float.TryParse(tokens[i].ToString(), out _) || tokens[i] == "x")
                 { Q.Enqueue(tokens[i]); continue; }
-
-
-
-
             }
             while (S.Count > 0) Q.Enqueue(S.Pop());
-
             int tabsize = Q.Count;
             string[] postfix = new string[tabsize];
             int count = 0;
@@ -187,13 +177,24 @@ namespace programming2
                 {
                     double temp = double.Parse(S.Pop().ToString());
                     S.Push(evalFun(temp, tokens[i]));
-                    if(double.Parse(S.Peek().ToString()) == -3.7942080885) { Console.WriteLine("\nKończę działanie..."); return -3.7942080885; }
+                    if (this.domainError)
+                    {
+                        Console.Write("\nDomain Error");
+                        this.domainError = false;
+                        return 0.0;
+                    }
                 }
                 if (getPriority(tokens[i]) >= 1 && getPriority(tokens[i]) <= 3 && tokens[i] != "-u")
                 {
                     double a = double.Parse(S.Pop().ToString());
                     double b = double.Parse(S.Pop().ToString());
                     a = evalOp(a, b, tokens[i]);
+                    if (this.domainError)
+                    {
+                        Console.Write("\nDomain Error");
+                        this.domainError = false;
+                        return 0.0;
+                    }
                     S.Push(a);
                 }
                 else if (tokens[i] == "x")
@@ -202,13 +203,13 @@ namespace programming2
                 }
 
             }
-            Console.Write("\n" + x + " => " + S.Pop().ToString());
-            return 0.0;
+            Console.Write("\n" + x + "\t=> " + S.Peek().ToString());
+            return double.Parse(S.Pop().ToString());
         }
-        public double evaluatePostfix(double x, double x_min, double x_max, int n)
+        public double evaluatePostfix(double x_min, double x_max, int n)
         {
             
-            double dx = (x_max - x_min) / n;
+            double dx = (x_max - x_min) / (n-1);
             for (int j = 0; j < n; j++)
             {
                 evaluatePostfix(x_min);
@@ -237,10 +238,10 @@ namespace programming2
         }
         public static bool isNumber(string token)
         {
-            bool flag = double.TryParse(token, out _);
-            return flag;
+            return double.TryParse(token, out _);
+             
         }
-        public static double evalFun(double a, string fun)
+        public double evalFun(double a, string fun)
         {
             switch (fun)
             {
@@ -254,28 +255,40 @@ namespace programming2
                 case "log":
                     if (a > 0)
                             return Math.Log(a);
-                    else { Console.Write("Nieprawidłowa wartość. Błąd dziedziny funkcji log"); break; }
+                    else { this.domainError = true; return 0.0;}
                     
-                case "sqrt": return Math.Sqrt(a);
+                case "sqrt": if (a >= 0) return Math.Sqrt(a);
+                    else { this.domainError = true; return 0.0; }
                 case "tan": return Math.Tan(a);
                 case "tanh": return Math.Tanh(a);
-                case "acos": return Math.Acos(a);
-                case "asin": return Math.Asin(a);
+                case "acos": if(a>=-1 && a<=1) return Math.Acos(a);
+                    else { this.domainError = true; return 0.0; }
+                case "asin": if(a>=-1 & a<=1) return Math.Asin(a);
+                    else { this.domainError = true;return 0.0; }
                 case "atan": return Math.Atan(a);
             }
-            return -3.7942080885;
+            return 0.0;
         }
-        public static double evalOp(double a, double b, string op)
+        public double evalOp(double a, double b, string op)
         {
             switch (op)
             {
                 case "+": return a + b;
                 case "-": return b - a;
                 case "*": return a * b;
-                case "/": return b / a;
+                case "/": if( a!=0) return b / a; else { this.domainError = true; return 0.0; }
                 case "^": return Math.Pow(b, a);
             }
             return -3.42;
+        }
+        public bool checkTokensValidity(List<string> tokens)
+        {
+            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan", "^", "*", "/", "+", "-", "(", ")", "x", "-u" };
+            foreach (string t in tokens)
+            {
+                if (possibleTokens.Contains(t) || isNumber(t)) continue; else return false;
+            }
+            return true;
         }
     }
 }

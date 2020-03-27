@@ -23,11 +23,12 @@ namespace programming2
             RPN myRPN = new RPN(args[0].ToString());
             if (!myRPN.properEquation()) goto end;
             myRPN.generateInfixTokens();
+            if (myRPN.invalidTokens) goto end;
             myRPN.returnInfixTokens();
             myRPN.generatePostfixTokens();
             myRPN.returnPostfixTokens();
             myRPN.evaluatePostfix(double.Parse(args[1]));
-            myRPN.evaluatePostfix(double.Parse(args[1]), double.Parse(args[2]), double.Parse(args[3]), int.Parse(args[4]));
+            myRPN.evaluatePostfix(double.Parse(args[2]), double.Parse(args[3]), int.Parse(args[4]));
         end:
             Console.WriteLine("\nPress any key...");
             Console.Read();
