@@ -25,6 +25,7 @@ namespace programming2
         public RPN(string input)
         {
             this.equation = input;
+            this.equation= this.equation.Replace(" ", "");
         }
         public bool properEquation()
         {
