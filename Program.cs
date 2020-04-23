@@ -22,7 +22,14 @@ namespace programming2
             }
             RPN myRPN = new RPN(args[0].ToString());
             if (!myRPN.properEquation()) goto end;
-            myRPN.generateInfixTokens();
+            try{
+                myRPN.generateInfixTokens();
+            }
+            catch(Exception ex){
+                Console.WriteLine(ex.Message);
+                goto end;
+            }
+            
             if (myRPN.invalidTokens) goto end;
             myRPN.returnInfixTokens();
             myRPN.generatePostfixTokens();

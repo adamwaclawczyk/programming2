@@ -56,69 +56,52 @@ namespace programming2
         }
         public string[] generateInfixTokens()
         {
-            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan","x"};
-            List<string> possibleSingleTokens = new List<string> { "^", "*", "/", "+", "-", "(", ")",};
+            List<string> possibleTokens = new List<string> { "abs", "cos", "exp", "log", "sin", "sqrt", "tan", "cosh", "sinh", "tanh", "acos", "asin", "atan"};
+            List<string> possibleSingleTokens = new List<string> { "^", "*", "/", "+", "-", "(", ")","x"};
             List<string> tokens = new List<string>();
-            string tmp = "";
-            string tmpNum = "";
-            bool isNumber = false;
-            bool isDouble = false;
-            foreach (char znak in equation)
-            {
-                if (znak == '-' && (tokens.Count == 0 || isOperator(tokens[tokens.Count - 1])))
+            for(int i = 0; i < equation.Length;i++){
+                Console.WriteLine(i);
+                if (equation[i] == '-' && (tokens.Count == 0 || isOperator(tokens[tokens.Count - 1])))
                 {
                     tokens.Add("-u");
-                    tmp = "";
-                    tmpNum = "";
                     continue;
-                }
-                
-                if (int.TryParse(znak.ToString(), out _) && isDouble == false)
-                {
-                    isNumber = true;
-                    tmpNum += znak;
-                }
-                if (znak == '.')
-                {
-                    tmpNum += znak;
-                    isDouble = true;
-                }
-                if (int.TryParse(znak.ToString(), out _) && isDouble == true)
-                {
-                    tmpNum += znak;
-                }
-                if (!int.TryParse(znak.ToString(), out _) && isDouble && znak != '.')
-                {
-                    tokens.Add(tmpNum);
-                    tmpNum = "";
-                    tmp = "";
-                    isNumber = false;
-                    isDouble = false;
-                }
-                if (isNumber && !(int.TryParse(znak.ToString(), out _)) && znak != '.')
-                {
-                    tokens.Add(tmpNum);
-                    tmpNum = "";
-                    tmp = "";
-                    isNumber = false;
-                    isDouble = false;
-                }
-                if (possibleSingleTokens.Contains(znak.ToString()))
-                {
-                    tmp = "";
-                    tmpNum = "";
-                    tokens.Add(znak.ToString());
+                }else
+                if ( int.TryParse(equation[i].ToString(), out _)){
+                    int tmpi = i;
+                    int count = 0;
+                    string intBuilder = "";
+                    while(tmpi<equation.Length && (int.TryParse(equation[tmpi].ToString(), out _) || equation[tmpi] == '.' || equation[tmpi] == ',')){
+                        intBuilder = intBuilder + equation[tmpi];
+                        tmpi++;
+                        count++;
+                    }
+                    tokens.Add(intBuilder);
+                    i = tmpi-1;
                     continue;
+                }else
+                if(possibleSingleTokens.Contains(equation[i].ToString())){
+                    tokens.Add(equation[i].ToString());
+                    continue;
+                }else
+                if(possibleTokens.Contains(equation[i].ToString() + equation[i+1].ToString() + equation[i+2].ToString() + equation[i+3].ToString())){
+                    tokens.Add(equation[i].ToString() + equation[i+1].ToString() + equation[i+2].ToString() + equation[i+3].ToString());
+                    i+=3;
+                    continue;
+                }else
+                if(possibleTokens.Contains(equation[i].ToString() + equation[i+1].ToString() + equation[i+2].ToString())){
+                    tokens.Add(equation[i].ToString() + equation[i+1].ToString() + equation[i+2].ToString());
+                    i+=2;
+                    continue;
+                }else{
+                    throw new Exception("Invalid formula");
                 }
-                tmp += znak;
-                if (possibleTokens.Contains(tmp))
-                {
-                    tokens.Add(tmp);
-                    tmp = "";
-                }else if (tmp.Length == 4) { this.invalidTokens = true;}
+
+
+
+
+
+
             }
-            if (tmpNum != "") { tokens.Add(tmpNum); tmp = ""; }
-            if (tmp != "") { tokens.Add(tmp);}
             foreach(string t in tokens)
             {
                 this.infixTokens.Add(t);
@@ -316,7 +299,7 @@ namespace programming2
                         return Math.Asin(a);
                     else
                     { 
-                         this.domainError = true;
+                         //this.domainError = true;
                          throw new DomainErrorException("Domain error for asin function, check your formula");
                     }
                 case "atan": return Math.Atan(a);
@@ -349,7 +332,10 @@ namespace programming2
             foreach (string t in tokens)
             {
                 string t2 = t.Replace('.', ',');
-                if (possibleTokens.Contains(t2) || double.TryParse(t2, out _) || int.TryParse(t2,out _)) continue; else return false;
+                if (possibleTokens.Contains(t2) || double.TryParse(t2, out _) || int.TryParse(t2,out _)) 
+                    continue; 
+                else 
+                    throw new Exception("Invalid formula");
             }
             return true;
         }
