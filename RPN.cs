@@ -5,7 +5,17 @@ using System.Text;
 
 namespace programming2
 {
+    [Serializable]
+    public class DomainErrorException : Exception{
+        public DomainErrorException(){
 
+        }
+        public DomainErrorException(string message) : base(message) {
+        }
+        public DomainErrorException(string message, Exception inner) : base(message, inner){
+
+        }
+    }
     public class RPN
     {
         string equation;
@@ -191,7 +201,6 @@ namespace programming2
                     S.Push(evalFun(temp, tokens[i]));
                     if (this.domainError)
                     {
-                        Console.Write("\nDomain Error");
                         this.domainError = false;
                         return 0.0;
                     }
@@ -200,7 +209,7 @@ namespace programming2
                 {
                     double a = double.Parse(S.Pop().ToString());
                     double b = double.Parse(S.Pop().ToString());
-                    a = evalOp(a, b, tokens[i]);
+                       a = evalOp(a, b, tokens[i]);
                     if (this.domainError)
                     {
                         Console.Write("\nDomain Error");
@@ -224,7 +233,12 @@ namespace programming2
             double dx = (x_max - x_min) / (n-1);
             for (int j = 0; j < n; j++)
             {
-                evaluatePostfix(x_min);
+                try{
+                    evaluatePostfix(x_min);
+                }
+                catch(Exception ex){
+                    Console.Write("\n"+ex.Message);
+                }
                 x_min += dx;
             }
             return 0.0;
@@ -245,8 +259,10 @@ namespace programming2
         }
         public static int getPriority(string op)
         {
-            if (properDict.TryGetValue(op, out _)) return properDict[op];
-            else return 10;
+            if (properDict.TryGetValue(op, out _)) 
+                return properDict[op];
+            else 
+                return 10;
         }
         public static bool isNumber(string token)
         {
@@ -257,26 +273,52 @@ namespace programming2
         {
             switch (fun)
             {
-                case "-u": return (-1) * a;
-                case "sin": return Math.Sin(a);
-                case "cos": return Math.Cos(a);
-                case "sinh": return Math.Sinh(a);
-                case "cosh": return Math.Cosh(a);
-                case "abs": return Math.Abs(a);
-                case "exp": return Math.Exp(a);
+                case "-u": 
+                    return (-1) * a;
+                case "sin": 
+                    return Math.Sin(a);
+                case "cos": 
+                    return Math.Cos(a);
+                case "sinh":
+                    return Math.Sinh(a);
+                case "cosh":
+                    return Math.Cosh(a);
+                case "abs": 
+                    return Math.Abs(a);
+                case "exp": 
+                    return Math.Exp(a);
                 case "log":
                     if (a > 0)
-                            return Math.Log(a);
-                    else { this.domainError = true; return 0.0;}
-                    
-                case "sqrt": if (a >= 0) return Math.Sqrt(a);
-                    else { this.domainError = true; return 0.0; }
-                case "tan": return Math.Tan(a);
-                case "tanh": return Math.Tanh(a);
-                case "acos": if(a>=-1 && a<=1) return Math.Acos(a);
-                    else { this.domainError = true; return 0.0; }
-                case "asin": if(a>=-1 & a<=1) return Math.Asin(a);
-                    else { this.domainError = true;return 0.0; }
+                        return Math.Log(a);
+                    else 
+                    { 
+                        throw new DomainErrorException("Domain error for log function, check your formula");
+                    }
+                case "sqrt": 
+                    if (a >= 0) 
+                        return Math.Sqrt(a);
+                    else
+                    { 
+                        throw new DomainErrorException("Domain error for sqrt function, check your formula");
+                    }
+                case "tan": 
+                    return Math.Tan(a);
+                case "tanh": 
+                    return Math.Tanh(a);
+                case "acos": 
+                    if(a>=-1 && a<=1) return Math.Acos(a);
+                    else 
+                    { 
+                        throw new DomainErrorException("Domain error for acos function, check your formula");
+                    }
+                case "asin": 
+                    if(a>=-1 & a<=1) 
+                        return Math.Asin(a);
+                    else
+                    { 
+                         this.domainError = true;
+                         throw new DomainErrorException("Domain error for asin function, check your formula");
+                    }
                 case "atan": return Math.Atan(a);
             }
             return 0.0;
@@ -285,10 +327,18 @@ namespace programming2
         {
             switch (op)
             {
-                case "+": return a + b;
-                case "-": return b - a;
-                case "*": return a * b;
-                case "/": if( a!=0) return b / a; else { this.domainError = true; return 0.0; }
+                case "+": 
+                    return a + b;
+                case "-": 
+                    return b - a;
+                case "*": 
+                    return a * b;
+                case "/": 
+                    if( a!=0) 
+                        return b / a; 
+                    else { 
+                        throw new DivideByZeroException("Division error, can't divide by zero");
+                    }
                 case "^": return Math.Pow(b, a);
             }
             return -3.42;

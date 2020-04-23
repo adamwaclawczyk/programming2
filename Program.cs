@@ -27,11 +27,18 @@ namespace programming2
             myRPN.returnInfixTokens();
             myRPN.generatePostfixTokens();
             myRPN.returnPostfixTokens();
-            myRPN.evaluatePostfix(double.Parse(args[1]));
+            Console.Write("\n");
+            try{
+                myRPN.evaluatePostfix(double.Parse(args[1]));
+            }
+            catch(Exception ex){
+                Console.Write("\n"+ex.Message);
+            }
             myRPN.evaluatePostfix(double.Parse(args[2]), double.Parse(args[3]), int.Parse(args[4]));
+            
         end:
             Console.WriteLine("\nPress any key...");
-            Console.Read();
+            Console.ReadKey();
         }
         
     }
