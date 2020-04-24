@@ -22,10 +22,12 @@ namespace programming2
             }
             RPN myRPN = new RPN(args[0].ToString());
             if (!myRPN.properEquation()) goto end;
-            try{
+            try
+            {
                 myRPN.generateInfixTokens();
             }
-            catch(Exception ex){
+            catch(Exception ex)
+            {
                 Console.WriteLine(ex.Message);
                 goto end;
             }
@@ -35,10 +37,12 @@ namespace programming2
             myRPN.generatePostfixTokens();
             myRPN.returnPostfixTokens();
             Console.Write("\n");
-            try{
+            try
+            {
                 myRPN.evaluatePostfix(double.Parse(args[1]));
             }
-            catch(Exception ex){
+            catch(Exception ex)
+            {
                 Console.Write("\n"+ex.Message);
             }
             myRPN.evaluatePostfix(double.Parse(args[2]), double.Parse(args[3]), int.Parse(args[4]));

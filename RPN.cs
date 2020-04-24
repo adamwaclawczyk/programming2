@@ -95,12 +95,6 @@ namespace programming2
                 }else{
                     throw new Exception("Invalid formula");
                 }
-
-
-
-
-
-
             }
             foreach(string t in tokens)
             {
